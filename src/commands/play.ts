@@ -86,8 +86,8 @@ export class PlayCommand extends Command {
 					leaveOnEnd: false,
 					pauseOnEmpty: true,
 					bufferingTimeout: 0,
-					volume: 50
-					// defaultFFmpegFilters: ['silenceremove']
+					volume: 50,
+					defaultFFmpegFilters: ['silenceremove']
 				}
 			});
 
