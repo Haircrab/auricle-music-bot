@@ -6,17 +6,15 @@ export class PlayerEvent extends Listener {
 		super(context, {
 			...options,
 			emitter: container.client.player.events,
-			event: 'playerError'
+			event: 'emptyQueue'
 		});
 	}
 
-	public run(queue, error, track) {
+	public run(queue) {
 		const resolved = new PermissionsBitField([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ViewChannel]);
 		const missingPerms = queue.metadata.channel.permissionsFor(queue.metadata.client).missing(resolved);
 		if (missingPerms.length) return;
 
-		console.log(error);
-
-		return queue.metadata.channel.send(`${queue.metadata.client.dev.error} | There was an error with **${track.title}:**`);
+		queue.metadata.channel.send('No more tracks left in the queue!').then((m: { delete: () => void }) => setTimeout(() => m.delete(), 7000));
 	}
 }

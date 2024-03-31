@@ -1,4 +1,5 @@
 import { Listener } from '@sapphire/framework';
+import { useMainPlayer } from 'discord-player';
 
 export class UserEvent extends Listener {
 	public constructor(context: Listener.Context, options: Listener.Options) {
@@ -9,7 +10,14 @@ export class UserEvent extends Listener {
 	}
 
 	public async run() {
-		await this.container.client.player.extractors.loadDefault();
-		return this.container.client.logger.info(`Successfully logged in as: ${this.container.client.user?.username}`);
+		console.log(`Logged in as ${this.container.client.user?.username}`);
+
+		const player = useMainPlayer();
+		if (player) {
+			// await player.extractors.loadDefault(/* (ext) => ext !== 'YouTubeExtractor' */);
+			// console.log(player.scanDeps());
+			// await player.extractors.loadDefault((ext) => ext === 'YouTubeExtractor' || ext === 'SpotifyExtractor' || ext === 'AttachmentExtractor');
+			await player.extractors.loadDefault(/* (ext) => ext !== 'YouTubeExtractor' */);
+		}
 	}
 }

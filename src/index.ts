@@ -1,12 +1,13 @@
-import { AuricleClient } from './AuricleClient';
+import { KarasuClient } from './KarasuClient';
 import './lib/setup';
 
-const client = new AuricleClient();
+const client = new KarasuClient();
 
 const main = async () => {
 	try {
 		client.logger.info('Logging in...');
-		return client.login();
+		await client.login();
+		client.logger.info('Logged in!');
 	} catch (error) {
 		client.logger.fatal(error);
 		client.destroy();

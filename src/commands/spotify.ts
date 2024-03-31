@@ -1,12 +1,12 @@
 import { Command } from '@sapphire/framework';
-import { QueryType, useMainPlayer } from 'discord-player';
+import { QueryType } from 'discord-player';
 import type { GuildMember } from 'discord.js';
 
-export class PlayCommand extends Command {
+export class SpotifyCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
 		super(context, {
 			...options,
-			description: 'Plays and enqueues track(s) of the query provided'
+			description: 'Plays and enqueues track(s) of the query provided from spotify'
 		});
 	}
 
@@ -23,37 +23,19 @@ export class PlayCommand extends Command {
 
 	public override async autocompleteRun(interaction: Command.AutocompleteInteraction) {
 		const query = interaction.options.getString('query');
-		if (!query) return [];
-
-		const player = useMainPlayer();
-
-		const results = await player!.search(query!, {
-			requestedBy: interaction.user,
-			fallbackSearchEngine: QueryType.YOUTUBE_SEARCH
+		const results = await this.container.client.player.search(query!, {
+			searchEngine: QueryType.SPOTIFY_SEARCH
 		});
 
-		let tracks;
-		tracks = results!.tracks
-			.map((t) => ({
+		return interaction.respond(
+			results.tracks.slice(0, 10).map((t) => ({
 				name: t.title,
 				value: t.url
 			}))
-			.slice(0, 10);
-
-		if (results.playlist) {
-			tracks = results!.tracks
-				.map(() => ({
-					name: `${results.playlist!.title} [playlist]`,
-					value: results.playlist!.url
-				}))
-				.slice(0, 1);
-		}
-
-		return interaction.respond(tracks).catch(() => null);
+		);
 	}
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
-		const player = useMainPlayer();
 		const member = interaction.member as GuildMember;
 		const permissions = this.container.client.perms.voice(interaction, this.container.client);
 		if (permissions.member()) return interaction.reply({ content: permissions.member(), ephemeral: true });
@@ -62,19 +44,22 @@ export class PlayCommand extends Command {
 		const query = interaction.options.getString('query');
 
 		if (permissions.clientToMember()) return interaction.reply({ content: permissions.clientToMember(), ephemeral: true });
-		await interaction.deferReply();
-		const results = await player!.search(query!, {
-			requestedBy: interaction.user,
-			fallbackSearchEngine: QueryType.YOUTUBE_SEARCH
+
+		const results = await this.container.client.player.search(query!, {
+			searchEngine: QueryType.SPOTIFY_SEARCH
 		});
 
 		if (!results.hasTracks())
-			return interaction.editReply({
-				content: `${this.container.client.dev.error} | **No** tracks were found for your query`
+			return interaction.reply({
+				content: `${this.container.client.dev.error} | No tracks were found for your query`,
+				ephemeral: true
 			});
 
+		await interaction.deferReply();
+		await interaction.editReply({ content: `⏳ | Loading ${results.playlist ? 'a playlist...' : 'a track...'}` });
+
 		try {
-			const res = await player!.play(member.voice.channel!.id, results, {
+			const res = await this.container.client.player.play(member.voice.channel!.id, results, {
 				nodeOptions: {
 					metadata: {
 						channel: interaction.channel,
@@ -83,21 +68,17 @@ export class PlayCommand extends Command {
 					},
 					leaveOnEmptyCooldown: 300000,
 					leaveOnEmpty: true,
-					leaveOnEnd: false,
-					pauseOnEmpty: true,
-					bufferingTimeout: 0,
-					volume: 50
-					// defaultFFmpegFilters: ['silenceremove']
+					leaveOnEnd: false
 				}
 			});
 
-			return interaction.editReply({
+			await interaction.editReply({
 				content: `${this.container.client.dev.success} | Successfully enqueued${
-					res.track.playlist ? ` **track(s)** from: **${res.track.playlist.title}**` : `: **${res.track.title}**`
+					res.track.playlist ? ` **multiple tracks** from: **${res.track.playlist.title}**` : `: **${res.track.title}**`
 				}`
 			});
 		} catch (error: any) {
-			await interaction.editReply({ content: `${this.container.client.dev.error} | An **error** has occurred` });
+			await interaction.editReply({ content: `${this.container.client.dev.error} | An error has occurred` });
 			return console.log(error);
 		}
 	}

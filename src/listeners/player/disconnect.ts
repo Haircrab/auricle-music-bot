@@ -1,6 +1,5 @@
 import { container, Listener } from '@sapphire/framework';
-import type { GuildQueue } from 'discord-player';
-import type { GuildTextBasedChannel } from 'discord.js';
+import { PermissionsBitField } from 'discord.js';
 
 export class PlayerEvent extends Listener {
 	public constructor(context: Listener.Context, options: Listener.Options) {
@@ -11,12 +10,12 @@ export class PlayerEvent extends Listener {
 		});
 	}
 
-	public run(queue: GuildQueue<{ channel: GuildTextBasedChannel }>) {
-		const { voice } = container.client.utils;
-		const permissions = voice(queue.metadata.channel);
-		if (permissions.events) return;
+	public run(queue) {
+		const resolved = new PermissionsBitField([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ViewChannel]);
+		const missingPerms = queue.metadata.channel.permissionsFor(queue.metadata.client).missing(resolved);
+		if (missingPerms.length) return;
 
-		return queue.metadata.channel
+		queue.metadata.channel
 			.send('I have been **manually disconnected** from the **voice channel**')
 			.then((m: { delete: () => void }) => setTimeout(() => m.delete(), 15000));
 	}

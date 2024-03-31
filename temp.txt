@@ -1,0 +1,4 @@
+    "@discord-player/equalizer": "workspace:^",
+    "@discord-player/extractor": "workspace:^",
+    "@discord-player/utils": "workspace:^",
+    "discord-player": "workspace:^",
