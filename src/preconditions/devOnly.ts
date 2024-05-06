@@ -1,8 +1,7 @@
 import { AllFlowsPrecondition } from '@sapphire/framework';
 import type { ChatInputCommandInteraction, ContextMenuCommandInteraction, Message, Snowflake } from 'discord.js';
-import { envParseArray } from '@skyra/env-utilities';
 
-const OWNERS = envParseArray('OWNERS');
+const OWNERS = 'kenwong__';
 
 export class UserPrecondition extends AllFlowsPrecondition {
 	#message = 'This command can only be used by the owner.';
