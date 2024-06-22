@@ -65,7 +65,8 @@ export class PlayCommand extends Command {
 		await interaction.deferReply();
 		const results = await player!.search(query!, {
 			requestedBy: interaction.user,
-			fallbackSearchEngine: QueryType.YOUTUBE_SEARCH
+			fallbackSearchEngine: QueryType.YOUTUBE_SEARCH,
+			ignoreCache: true
 		});
 
 		if (!results.hasTracks())

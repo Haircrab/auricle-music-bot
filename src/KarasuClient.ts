@@ -37,7 +37,8 @@ export class KarasuClient extends SapphireClient {
 					}
 				}
 			},
-			skipFFmpeg: true
+			skipFFmpeg: true,
+      queryCache:null
 		});
 
 		// this.player.events.on('willPlayTrack', (_, __, config, done) => {
