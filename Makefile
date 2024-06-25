@@ -1,5 +1,9 @@
 -include .env
-LOCAL_IMAGE="dc-music-bot:latest"
+
+.PHONY: dev
+dev:
+	@echo "[I] Start application in development env"
+	docker compose up
 	
 .PHONY: all
 all: login build retag push
@@ -19,10 +23,10 @@ build:
 .PHONY: retag
 retag:
 	@echo "[I]  Tagging built image"
-	docker tag ${LOCAL_IMAGE} ${IMAGE_REGISTRY}/${LOCAL_IMAGE}    
+	docker tag ${LOCAL_IMAGE} ${IMAGE_REGISTRY}/${REMOTE_IMAGE}    
 
 .PHONY : push
 push :
 	@echo "Start pushing built image to container registry"
-	docker push ${IMAGE_REGISTRY}/${LOCAL_IMAGE}
+	docker push ${IMAGE_REGISTRY}/${REMOTE_IMAGE}
 	@echo "Push success"
