@@ -20,7 +20,7 @@
     "@skyra/env-utilities": "^1.1.0",
     "colorette": "^2.0.19",
     "discord-api-types": "^0.37.35",
-    "discord-player": "^6.6.7",
+    "discord-player": "^6.6.10",
     "discord.js": "^14.14.1",
     "ffmpeg": "^0.0.4",
     "fluent-ffmpeg": "^2.1.2",
